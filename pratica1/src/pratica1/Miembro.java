@@ -7,7 +7,7 @@ package pratica1;
 
 /**
  *
- * @author alumno
+ * @author Julien Gallego y Filipe
  */
 public class Miembro {  
 	
@@ -15,17 +15,17 @@ public class Miembro {
     String nombre;
     int nMotos;
     int importe;
-    
-    Miembro(int numSocios,String nombre){
-        this.numSocios = numSocios;
+    Miembro(String nombre){
+        this.numSocios = idIncrement;
+        idIncrement += 1;
         this.nombre = nombre;
         this.nMotos = 0;
         this.importe = 0;
     }
-
+    static int idIncrement = 1;
 	@Override
 	public String toString() {
-		return "Miembro [numSocios=" + numSocios + ", nombre=" + nombre + ", nMotos=" + nMotos + ", importe=" + importe
+		return "Miembro [numSocios=" + numSocios + ", nombre=" + nombre + ", numero de motos=" + nMotos + ", importe=" + importe
 				+ "]";
 	}
     

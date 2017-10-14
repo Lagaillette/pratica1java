@@ -1,0 +1,2 @@
+Miembro [numSocios=1, nombre=pepe, numero de motos=1, importe=1500]
+   Moto [id=0, nombre=suzuki, CC=150, coste=1500, miembro=Miembro [numSocios=1, nombre=pepe, numero de motos=1, importe=1500]]

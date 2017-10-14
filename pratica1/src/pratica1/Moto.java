@@ -7,7 +7,7 @@ package pratica1;
 
 /**
  *
- * @author alumno
+ * @author Julien Gallego y Filipe
  */
 public class Moto {
 	

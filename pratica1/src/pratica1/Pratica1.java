@@ -5,13 +5,16 @@
  */
 package pratica1;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
 
 /**
  *
- * @author alumno
+ * @author Julien Gallego y Filipe 
  */
 public class Pratica1 {
 
@@ -32,9 +35,9 @@ public class Pratica1 {
 		int choice = 0;
 
 		do{
-			System.out.println("1. Registrar un nuevo miembro \n "
-					+ "2. Registrar una nueva motocicleta \n "
-					+ "3. Registrar una cesión \n "
+			System.out.println("1. Registrar un nuevo miembro \n"
+					+ "2. Registrar una nueva motocicleta \n"
+					+ "3. Registrar una cesión \n"
 					+ "4. Listar en pantalla los miembros con motos en posesión \n"
 					+ "5. Listar todas las motos \n"
 					+ "6. Mostrar las cesiones realizadas \n"
@@ -56,7 +59,8 @@ public class Pratica1 {
 				break;
 				case 6: listaCesiones();
 				break;
-				case 7: end = true;
+				case 7: escribirFicheroTexto();
+						end = true;
 				break;
 				default : System.out.println("Porfavor, elige un numero valido");
 				}
@@ -67,16 +71,20 @@ public class Pratica1 {
 		}while(!end);
 	}
 
+	/**
+     *registrar un miembro.
+	 */
 	public static void registrarMiembro(){
-		System.out.println("Elige el numero de Socios del miembro porfavor");
-		int numSocios = pedirEntero();
 		System.out.println("Cual es el nombre del miembro");
 		String nombre = pedirPalabra();
-		Miembro miembro = new Miembro(numSocios,nombre);
+		Miembro miembro = new Miembro(nombre);
 		miembros.add(miembro);
-		System.out.println(miembros);
+		listaMiembros();
 	}
 
+	/**
+	 * registrar una moto.
+	 */
 	public static void registrarMoto(){
 		if(miembros.isEmpty() ){
 			System.out.println("No puedes añadir una moto si no hay miembro");
@@ -87,20 +95,24 @@ public class Pratica1 {
 				System.out.println("Escribir el nombre de la moto");
 				nombre = pedirPalabra();
 			}while(nombre.length() == 0);
+			
 			System.out.println("Escribir el CC de la moto");
 			int CC = pedirEntero();
 			System.out.println("Escribir el coste de la moto");
 			int coste = pedirEntero();
 			Miembro miembro = null;
 			int numeroSocios;
+			
 			do{
 				System.out.println("Escribir el numero de socios de el que va a tener la moto");
-				System.out.println(miembros);
+				listaMiembros();
 				numeroSocios = pedirEntero();
 			}while(!existeMiembro(numeroSocios));
+			miembro = getMiembroByNumSocios(numeroSocios);
 			Moto moto = new Moto(nombre,CC,coste,miembro);
-			if(AñadirMotoAMiembro(moto, miembro)){
+			if(añadirMotoAMiembro(moto, miembro)){
 				motos.add(moto);
+				System.out.println("moto bien registrada");
 			}
 			else{
 				System.out.println("por favor, empiezas otra vez");
@@ -109,6 +121,9 @@ public class Pratica1 {
 	}
 
 
+	/**
+	 * Registrar una cesion.
+	 */
 	public static void registrarUnaCesion(){
 		if(motos.size() == 0 || miembros.size() < 2 ){
 			System.out.println("No Hay miembro o motos necesarios para registrar una cesion");
@@ -120,7 +135,7 @@ public class Pratica1 {
 			int id;
 			int numSocios1;
 			int numSocios2;
-			
+			listaMiembrosMotos();
 			do{
 				System.out.println("cual es el id de la moto que quieres que cambia de miembro");
 				id = pedirEntero();
@@ -129,27 +144,32 @@ public class Pratica1 {
 			moto = getMotoById(id);
 			
 			do{
-				System.out.println("cual es el id de la moto que quieres que cambia de miembro");
+				System.out.println("cual es el id del miembro que va a haber la moto");
 				numSocios1 = pedirEntero();
 			}while(!existeMiembro(numSocios1));
 			
 			miembro1 = getMiembroByNumSocios(numSocios1);
 			
-			do{
-				System.out.println("cual es el id de la moto que quieres que cambia de miembro");
-				numSocios2 = pedirEntero();
-			}while(!existeMiembro(numSocios2));
+			miembro2 = moto.miembro;
 			
-			miembro2 = getMiembroByNumSocios(numSocios2);
+			if(añadirMotoAMiembro(moto, miembro1)){
+				moto.miembro = miembro1;
+				quitarMotoAMiembro(moto, miembro2);
+				Cesion cesion = new Cesion(moto, miembro1, miembro2);
+				historicaCesiones.add(cesion);
+			}
 
-			Cesion cesion = new Cesion(moto, miembro1, miembro2);
 			
-			historicaCesiones.add(cesion);
+			
+			
 		}
 		
 
 	}
 
+	/**
+	 * listar los miembros y las motos que tienen.
+	 */
 	public static void listaMiembrosMotos(){
 		if(miembros.isEmpty()){
 			System.out.println("no hay miembros, perdonna");
@@ -160,12 +180,12 @@ public class Pratica1 {
 			Iterator itMiembros = miembros.iterator();
 			while(itMiembros.hasNext()){
 				miembro = (Miembro) itMiembros.next();
-				miembro.toString();
+				System.out.println(miembro.toString());
 				Iterator itMotos = motos.iterator();
 				while(itMotos.hasNext()){
 					moto = (Moto) itMotos.next();
 					if(moto.miembro == miembro){
-						moto.toString();
+						System.out.println("   "+moto.toString());
 					}
 
 				}
@@ -174,10 +194,19 @@ public class Pratica1 {
 
 	}
 	
+	/**
+	 * Listar las motos.
+	 */
 	public static void listaMotos(){
-			System.out.println(motos);
+		Iterator it = motos.iterator();
+		while(it.hasNext()){
+			System.out.println(it.next());
+		}
 	}
 	
+	/**
+	 * Listar los miembros.
+	 */
 	public static void listaMiembros(){
 		Iterator it = miembros.iterator();
 		while(it.hasNext()){
@@ -185,6 +214,9 @@ public class Pratica1 {
 		}
 	}
 	
+	/**
+	 * Listar las cesiones.
+	 */
 	public static void listaCesiones(){
 		Iterator it = historicaCesiones.iterator();
 		while(it.hasNext()){
@@ -192,6 +224,10 @@ public class Pratica1 {
 		}
 	}
 
+	/**
+	 * Pedir un entero.
+	 * @return el entero que ha pedido el usuario.
+	 */
 	public static int pedirEntero(){
 
 		Scanner input = new Scanner(System.in);
@@ -211,6 +247,10 @@ public class Pratica1 {
 		return resultado;
 	}
 
+	/**
+	 * Pedir una palabra.
+	 * @return la palabra pedida por el usuario.
+	 */
 	public static String pedirPalabra(){
 
 		Scanner input = new Scanner(System.in);
@@ -230,33 +270,53 @@ public class Pratica1 {
 		return resultado;
 	}
 
+	/**
+	 * Saber si un numero de socios coresponde con un miembro registrado.
+	 * @param numSocios el numero de socios del miembro que buscamos.
+	 * @return true si el miembro existe, false sino.
+	 */
 	public static boolean existeMiembro(int numSocios){
-		boolean resultado = false;
+		boolean existe = false;
 		Miembro miembro;
 		Iterator<Miembro> it = miembros.iterator();
-		while(it.hasNext() && resultado==false){
+		while(it.hasNext() && existe==false){
 			miembro = (Miembro) it.next();
-			System.out.println(miembro.numSocios + "   " + numSocios);
 			if(miembro.numSocios == numSocios){
-				resultado = true;
+				existe = true;
 			}
 		}
-		return resultado;
+		if(!existe){
+			System.out.println("este Miembro no existe");
+		}
+		return existe;
 	}
 	
+	/**
+	 * Saber si un id de una moto coresponde con una moto registrada.
+	 * @param numSocios el id de la moto que buscamos.
+	 * @return true si la moto existe, false sino.
+	 */
 	public static boolean existeMoto(int id){
-		boolean resultado = false;
+		boolean existe = false;
 		Moto moto;
-		Iterator it = miembros.iterator();
-		while(it.hasNext() && resultado==true){
+		Iterator it = motos.iterator();
+		while(it.hasNext() && existe!=true){
 			moto = (Moto) it.next();
 			if(moto.id == id){
-				resultado = true;
+				existe = true;
 			}
 		}
-		return resultado;
+		if(!existe){
+			System.out.println("esta moto no existe");
+		}
+		return existe;
 	}
 	
+	/**
+	 * Obtener un miembro gracias a su numero de socios.
+	 * @param numSocios el numero de socios del miembro que buscamos.
+	 * @return el miembro que corresponde al numero de socios, y si ningun miembro corresponde, return un miembro null.
+	 */
 	public static Miembro getMiembroByNumSocios(int numSocios){
 		boolean encontrado = false;
 		Miembro miembro = null;
@@ -271,6 +331,11 @@ public class Pratica1 {
 
 	}
 	
+	/**
+	 * Obtener una moto gracias a su Id
+	 * @param id el id de la moto que buscamos
+	 * @return la moto que corresponde al id, y si ninguna moto corresponde, return una moto null.
+	 */
 	public static Moto getMotoById(int id){
 		boolean encontrado = false;
 		Moto moto = null;
@@ -284,18 +349,77 @@ public class Pratica1 {
 		return moto;
 	}
 	
-	public static boolean AñadirMotoAMiembro(Moto moto, Miembro miembro){
+	/**
+	 * Permite hacer las modificaciones del importe y del numero de motos des miembre a quien añadimos la moto
+	 * @param moto la moto que estamos añadiendo
+	 * @param miembro el miembro a quien añadimos la moto
+	 * @return true si es posible añadir la moto al miembro, false si no
+	 */
+	public static boolean añadirMotoAMiembro(Moto moto, Miembro miembro){
 		boolean añadido = false;
 		int importe = miembro.importe + moto.coste;
+		Miembro miembroAntiguo = moto.miembro;
 		if(importe > 6000){
 			System.out.println("Este miembro no puede coger esta moto. Su importe es demasiado grande");
 		}else{
-			int index = miembros.indexOf(miembro);
+			int indexMiembro = miembros.indexOf(miembro);
 			miembro.importe += moto.coste;
 			miembro.nMotos += 1;
-			miembros.set(index, miembro);
-			añadido = true;
+			miembros.set(indexMiembro, miembro);			
+			añadido = true;	
 		}
 		return añadido;	
+	}
+	
+	
+	/**
+	 * Permite hacer las modificaciones del importe y del numero de motos des miembre a quien quitamos la moto
+	 * @param moto
+	 * @param miembro
+	 */
+	public static void quitarMotoAMiembro(Moto moto, Miembro miembro){
+		int importe = miembro.importe - moto.coste;
+		int index = miembros.indexOf(miembro);
+		miembro.importe -= moto.coste;
+		miembro.nMotos -= 1;
+		miembros.set(index, miembro);
+	}
+	
+	public static void escribirFicheroTexto(){
+		File f = new File("test.txt");
+	    try {
+			FileWriter fw = new FileWriter (f);
+			if(miembros.isEmpty()){
+				fw.write("no hay miembros, perdonna");
+				System.out.println("no hay miembros, perdonna");
+			}
+			else{
+				Moto moto;
+				Miembro miembro;
+				Iterator itMiembros = miembros.iterator();
+				while(itMiembros.hasNext()){
+					miembro = (Miembro) itMiembros.next();
+					fw.write(miembro.toString() + "\n");
+					Iterator itMotos = motos.iterator();
+					while(itMotos.hasNext()){
+						moto = (Moto) itMotos.next();
+						if(moto.miembro == miembro){
+							fw.write("   "+moto.toString());
+							fw.write("\n");
+						}
+
+					}
+				}
+				
+				Iterator itCesiones = historicaCesiones.iterator();
+				while(itCesiones.hasNext()){
+					fw.write(itCesiones.next().toString());
+				}
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
