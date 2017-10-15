@@ -19,7 +19,7 @@ public class Cesion {
 	@Override
 	public String toString() {
 		return miembroAntiguo.nombre  + " el socios numero " + miembroAntiguo.numSocios + " deja la moto "
-			   + moto.nombre + " con el id " + moto.id + " al socios "+ miembroNuevo.numSocios + miembroNuevo.nombre;
+			   + moto.nombre + " con el id " + moto.id + " al socios "+ miembroNuevo.numSocios + " " + miembroNuevo.nombre;
 				
 	}
 	
